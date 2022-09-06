@@ -1,5 +1,5 @@
 [tool.poetry]
-name = "algebra-staking-backend"
+name = "quickswapV3-staking-backend"
 version = "1.0.0"
 description = ""
 authors = ["Your Name <you@example.com>"]

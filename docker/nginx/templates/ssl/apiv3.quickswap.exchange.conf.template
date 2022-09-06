@@ -14,8 +14,8 @@ server {
   error_log /var/log/nginx/api.error.log warn;
   set $nginx_statics /usr/share/nginx;
 
-  ssl_certificate /etc/nginx/ssl/algebra-cf.pem;
-  ssl_certificate_key /etc/nginx/ssl/algebra-cf.key;
+  ssl_certificate /etc/nginx/ssl/quickswap-cf.pem;
+  ssl_certificate_key /etc/nginx/ssl/quickswap-cf.key;
 
   location /static/ {
     autoindex on;
