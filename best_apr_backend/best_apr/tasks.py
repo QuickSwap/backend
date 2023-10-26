@@ -2,7 +2,7 @@ from logging import exception
 
 from backend.celery import app
 from networks.models import Network
-from .services.functions import update_pools_apr, update_eternal_farmings_apr, update_limit_farmings_apr
+from .services.functions import update_pools_apr, update_max_pools_apr, update_eternal_farmings_max_apr, update_eternal_farmings_apr, update_limit_farmings_apr
 
 
 @app.task()
@@ -15,12 +15,31 @@ def update_pools_apr_task():
                 f'~~~~~~~~~~~~~~~\n{exception_error}\n~~~~~~~~~~~~~~~'
             )
 
+@app.task()
+def update_max_pools_apr_task():
+    for network in Network.objects.all():
+        try:
+            update_max_pools_apr(network)
+        except Exception as exception_error:
+            exception(
+                f'~~~~~~~~~~~~~~~\n{exception_error}\n~~~~~~~~~~~~~~~'
+            )
 
 @app.task()
 def update_eternal_farmings_apr_task():
     for network in Network.objects.all():
         try:
             update_eternal_farmings_apr(network)
+        except Exception as exception_error:
+            exception(
+                f'~~~~~~~~~~~~~~~\n{exception_error}\n~~~~~~~~~~~~~~~'
+            )
+
+@app.task()
+def update_eternal_farmings_max_apr_task():
+    for network in Network.objects.all():
+        try:
+            update_eternal_farmings_max_apr(network)
         except Exception as exception_error:
             exception(
                 f'~~~~~~~~~~~~~~~\n{exception_error}\n~~~~~~~~~~~~~~~'
@@ -36,3 +55,4 @@ def update_limit_farmings_apr_task():
             exception(
                 f'~~~~~~~~~~~~~~~\n{exception_error}\n~~~~~~~~~~~~~~~'
             )
+

@@ -209,6 +209,7 @@ class Network(AbstractBaseModel):
         pools(block:{number:%s},first: 1000, orderBy: id){
             feesToken0
             feesToken1
+            liquidity
             id
             token0{
             decimals
@@ -226,12 +227,13 @@ class Network(AbstractBaseModel):
         pools_json_previous = {}
 
         for pool in pools_json_previous_raw['data']['pools']:
-            pools_json_previous[pool['id']] = {'feesToken0': pool['feesToken0'], 'feesToken1': pool['feesToken1']}
+            pools_json_previous[pool['id']] = {'feesToken0': pool['feesToken0'], 'feesToken1': pool['feesToken1'], 'liquidity': pool['liquidity']}
 
         pools_json = send_post_request(self.subgraph_url, json={'query': """query {
         pools(first: 1000, orderBy: id){
             feesToken0
             feesToken1
+            liquidity
             id
             token0{
             decimals

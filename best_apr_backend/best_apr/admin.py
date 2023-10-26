@@ -9,13 +9,15 @@ class PoolAdmin(ModelAdmin):
     fields = (
         'title',
         'address',
-        'last_apr'
+        'last_apr',
+        'max_apr',
     )
     list_display = (
         'title',
         'network',
         'address',
-        'last_apr'
+        'last_apr',
+        'max_apr'
     )
     list_filter = (
         'network__title',
@@ -38,13 +40,15 @@ class EternalFarmingAdmin(ModelAdmin):
     fields = (
         'hash',
         'native_amount',
-        'last_apr'
+        'last_apr',
+        'max_apr'
     )
     list_display = (
         'hash',
         'native_amount',
         'network',
-        'last_apr'
+        'last_apr',
+        'max_apr'
     )
     list_filter = (
         'network__title',
