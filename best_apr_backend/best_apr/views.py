@@ -1,6 +1,6 @@
 from rest_framework.views import APIView
 from rest_framework.response import Response
-from .models import Pool, EternalFarming, LimitFarming
+from .models import Pool, EternalFarming, LimitFarming, DexDayData
 from logging import debug
 
 
@@ -99,4 +99,13 @@ class ListLimitFarmingsAprs(APIView):
 
         for farming in LimitFarming.objects.filter(network__title=network_name):
             result[farming.hash] = farming.last_apr
+        return Response(result)
+
+
+class DexData(APIView):
+    def get(self, request, format=None):
+        result = {}
+
+        for dex in DexDayData.objects.all():
+            result[dex.network.title] = dex
         return Response(result)

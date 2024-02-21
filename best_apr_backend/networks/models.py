@@ -261,3 +261,69 @@ class Network(AbstractBaseModel):
                 pools_json[i]['feesToken1'] = float(pools_json[i]['feesToken1'])
 
         return pools_json
+ 
+
+class LendingNetwork(AbstractBaseModel):
+    title = CharField(
+        max_length=255,
+        verbose_name='Title',
+    )
+    subgraph_url = URLField(
+        help_text='Subgraph about main contracts'
+    )
+    subgraph_blocks_urls = URLField(
+        help_text='Subgraph about blockchain'
+    )
+
+
+    class Meta:
+        db_table = 'networks'
+        ordering = '-_created_at',
+
+    def __str__(self) -> str:
+        return f'{self.title} (id: {self.id})'
+
+    def getDexDaysData(self):
+        if self.title == "thena-fusion":
+            dexDaysData_json = send_post_request(self.subgraph_url, json={'query': """query {
+              fusionDayDatas(first: 365, orderBy: date, orderDirection: desc) {  
+                          date
+                          tvlUSD
+                          volumeUSD
+                          feesUSD
+                      }}"""})
+            return dexDaysData_json['data']['fusionDayDatas']
+        else:
+            dexDaysData_json = send_post_request(self.subgraph_url, json={'query': """query {
+              algebraDayDatas(first: 365, orderBy: date, orderDirection: desc) {  
+                          date
+                          tvlUSD
+                          volumeUSD
+                          feesUSD
+                      }}"""})
+            return dexDaysData_json['data']['algebraDayDatas']
+        
+    def getDexDataForTimestamp(self, timestamp):
+        block = "0"
+        if self.title == "zkevm":
+            block_json = send_post_request(self.subgraph_blocks_urls, json={'query': """query {
+              ethereumBlocks(first: 1, orderBy: timestamp, orderDirection: desc, where:{timestamp_lt:%s, timestamp_gt:%s}) {
+                  number
+                }
+              }""" % (str(timestamp+10000), str(timestamp))})
+            block = int(block_json['data']['ethereumBlocks'][0]['number'])
+        else:
+            block_json = send_post_request(self.subgraph_blocks_urls, json={'query': """query {
+              blocks(first: 1, orderBy: timestamp, orderDirection: desc, where:{timestamp_lt:%s, timestamp_gt:%s}) {
+                  number
+                }
+              }""" % (str(timestamp+10000), str(timestamp))})
+            block = block_json['data']['blocks'][0]['number']
+        
+        dexData_json = send_post_request(self.subgraph_url, json={'query': """query {
+            factories(block: {number:%s}) {  
+                    totalVolumeUSD
+                    totalValueLockedUSD
+                    totalFeesUSD
+            }}""" % (block)})
+        return dexData_json['data']['factories']

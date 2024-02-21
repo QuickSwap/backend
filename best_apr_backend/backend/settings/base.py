@@ -262,6 +262,10 @@ CELERY_BEAT_SCHEDULE = {
         'task': 'best_apr.tasks.update_limit_farmings_apr_task',
         'schedule': timedelta(minutes=1),
     },
+    'update_dex_data_task': {
+        'task': 'best_apr.tasks.update_dex_data_task',
+        'schedule': timedelta(minutes=5),
+    },
 }
 
 CELERYD_HIJACK_ROOT_LOGGER = False
