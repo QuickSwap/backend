@@ -1,5 +1,5 @@
 from django.urls import path
-from .views import ListPoolAprs, ListMaxPoolAprs, ListEternalFarmingsMaxAprs, ListEternalFarmingsAprs, ListLimitFarmingsTvl, ListLimitFarmingsAprs, DexData, ListEternalFarmingsTvl
+from .views import ListPoolAprs, BuybackData, ListMaxPoolAprs, ListEternalFarmingsMaxAprs, ListEternalFarmingsAprs, ListLimitFarmingsTvl, ListLimitFarmingsAprs, DexData, ListEternalFarmingsTvl
 
 urlpatterns = [
     path('APR/pools/', ListPoolAprs.as_view(), name='get_pools_apr'),
@@ -9,5 +9,6 @@ urlpatterns = [
     path('APR/limitFarmings/', ListLimitFarmingsAprs.as_view(), name='get_limit_farmings_apr'),
     path('TVL/limitFarmings/', ListLimitFarmingsTvl.as_view(), name='get_limit_farmings_tvl'),
     path('TVL/eternalFarmings/', ListEternalFarmingsTvl.as_view(), name='get_eternal_farmings_tvl'),
-    path('lendingData/',DexData.as_view(), name='get_dex_data')
+    path('landingData/', DexData.as_view(), name='get_dex_data'),
+    path('buybackData/', BuybackData.as_view(), name='get_bb_data')
 ]

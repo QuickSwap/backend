@@ -263,7 +263,7 @@ class Network(AbstractBaseModel):
         return pools_json
  
 
-class LendingNetwork(AbstractBaseModel):
+class LandingNetwork(AbstractBaseModel):
     title = CharField(
         max_length=255,
         verbose_name='Title',
@@ -277,7 +277,7 @@ class LendingNetwork(AbstractBaseModel):
 
 
     class Meta:
-        db_table = 'networks'
+        db_table = 'landingNetworks'
         ordering = '-_created_at',
 
     def __str__(self) -> str:

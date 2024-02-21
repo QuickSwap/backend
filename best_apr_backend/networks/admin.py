@@ -1,7 +1,7 @@
 from django.contrib.admin import register, ModelAdmin
 
 from .models import Network
-from .models import LendingNetwork
+from .models import LandingNetwork
 
 
 # Register your models here.
@@ -35,8 +35,8 @@ class NetworkModelAdmin(ModelAdmin):
     )
     empty_value_display = '-empty-'
 
-@register(LendingNetwork)
-class LendingNetworkModelAdmin(ModelAdmin):
+@register(LandingNetwork)
+class LandingNetworkModelAdmin(ModelAdmin):
     fields = (
         'title',
         'subgraph_url',
