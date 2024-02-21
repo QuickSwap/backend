@@ -9,7 +9,7 @@ def update_dex_data(network: LandingNetwork):
 
     day_ago_timestamp = round((datetime.now() - timedelta(days=1)).timestamp())
     two_days_ago_timestamp = round((datetime.now() - timedelta(days=2)).timestamp())
-    now_timestamp = round(datetime.now().timestamp() - 60)
+    now_timestamp = round(datetime.now().timestamp()) - 180
 
     now = network.getDexDataForTimestamp(now_timestamp)
     day_ago = network.getDexDataForTimestamp(day_ago_timestamp)

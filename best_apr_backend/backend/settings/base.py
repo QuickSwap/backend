@@ -268,7 +268,7 @@ CELERY_BEAT_SCHEDULE = {
     },
     'update_bb_data_task': {
         'task': 'best_apr.tasks.update_bb_data_task',
-        'schedule': timedelta(minutes=1),
+        'schedule': timedelta(minutes=60),
     },
 }
 

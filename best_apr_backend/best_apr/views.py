@@ -106,25 +106,13 @@ class DexData(APIView):
     def get(self, request, format=None):
         result = {}
 
-        totalData = {}
-
         for dex in DexDayData.objects.all():
             data = {}
             data["now"] = dex.now
             data["dayAgo"] = dex.day_ago
             data["twoDaysAgo"] = dex.two_days_ago
             data["daysData"] = dex.days_data
-            daysData = dex.days_data
-            for day in daysData:
-                if totalData.get(day["date"]) == None:
-                    totalData[day["date"]] = { "date":day["date"], "tvlUSD": float(day["tvlUSD"]), "volumeUSD": float(day["volumeUSD"]), "feesUSD": float(day["feesUSD"])} 
-                else:
-                    totalData[day["date"]]["tvlUSD"] +=  float(day["tvlUSD"])
-                    totalData[day["date"]]["volumeUSD"] +=  float(day["volumeUSD"])        
-                    totalData[day["date"]]["feesUSD"] +=  float(day["feesUSD"])                              
             result[dex.network.title] = data
-        totalData = sorted(totalData.items(), reverse=True)
-        date, result["Total"] = list(zip(*totalData))
         return Response(result)
 
 class BuybackData(APIView):
@@ -134,4 +122,50 @@ class BuybackData(APIView):
             result["buybackHistory"] = BuyBackData.objects.all()[0].buy_back_data
         except KeyError:
             result["buybackHistory"] = ""
+        return Response(result)
+
+
+class TotalDexData(APIView):
+    def get(self, request, format=None):
+        result = {}
+
+        totalData = {}
+
+        for dex in DexDayData.objects.all():
+            data = {}
+            data["now"] = dex.now
+            data["dayAgo"] = dex.day_ago
+            data["twoDaysAgo"] = dex.two_days_ago
+            data["daysData"] = dex.days_data
+            daysData = dex.days_data
+            if result.get("now") == None:
+                print(dex.now)
+                result["now"] = {"totalFeesUSD": float(dex.now[0]["totalFeesUSD"]), "totalVolumeUSD": float(dex.now[0]["totalVolumeUSD"]), "totalValueLockedUSD": float(dex.now[0]["totalValueLockedUSD"])}
+            else: 
+                result["now"]["totalValueLockedUSD"] += float(dex.now[0]["totalValueLockedUSD"])
+                result["now"]["totalVolumeUSD"] += float(dex.now[0]["totalVolumeUSD"])
+                result["now"]["totalFeesUSD"] += float(dex.now[0]["totalFeesUSD"])
+            if result.get("dayAgo") == None:
+                print(dex.now)
+                result["dayAgo"] = {"totalFeesUSD": float(dex.day_ago[0]["totalFeesUSD"]), "totalVolumeUSD": float(dex.day_ago[0]["totalVolumeUSD"]), "totalValueLockedUSD": float(dex.day_ago[0]["totalValueLockedUSD"])}
+            else: 
+                result["dayAgo"]["totalValueLockedUSD"] += float(dex.day_ago[0]["totalValueLockedUSD"])
+                result["dayAgo"]["totalVolumeUSD"] += float(dex.day_ago[0]["totalVolumeUSD"])
+                result["dayAgo"]["totalFeesUSD"] += float(dex.day_ago[0]["totalFeesUSD"])
+            if result.get("twoDaysAgo") == None:
+                print(dex.now)
+                result["twoDaysAgo"] = {"totalFeesUSD": float(dex.two_days_ago[0]["totalFeesUSD"]), "totalVolumeUSD": float(dex.two_days_ago[0]["totalVolumeUSD"]), "totalValueLockedUSD": float(dex.two_days_ago[0]["totalValueLockedUSD"])}
+            else: 
+                result["twoDaysAgo"]["totalValueLockedUSD"] += float(dex.two_days_ago[0]["totalValueLockedUSD"])
+                result["twoDaysAgo"]["totalVolumeUSD"] += float(dex.two_days_ago[0]["totalVolumeUSD"])
+                result["twoDaysAgo"]["totalFeesUSD"] += float(dex.two_days_ago[0]["totalFeesUSD"])
+            for day in daysData:
+                if totalData.get(day["date"]) == None:
+                    totalData[day["date"]] = { "date":day["date"], "tvlUSD": float(day["tvlUSD"]), "volumeUSD": float(day["volumeUSD"]), "feesUSD": float(day["feesUSD"])} 
+                else:
+                    totalData[day["date"]]["tvlUSD"] +=  float(day["tvlUSD"])
+                    totalData[day["date"]]["volumeUSD"] +=  float(day["volumeUSD"])        
+                    totalData[day["date"]]["feesUSD"] +=  float(day["feesUSD"])                              
+        totalData = sorted(totalData.items(), reverse=True)
+        date, result["Total"] = list(zip(*totalData))
         return Response(result)

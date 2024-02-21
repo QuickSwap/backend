@@ -310,14 +310,14 @@ class LandingNetwork(AbstractBaseModel):
               ethereumBlocks(first: 1, orderBy: timestamp, orderDirection: desc, where:{timestamp_lt:%s, timestamp_gt:%s}) {
                   number
                 }
-              }""" % (str(timestamp+10000), str(timestamp))})
+              }""" % (str(timestamp+60), str(timestamp - 60))})
             block = int(block_json['data']['ethereumBlocks'][0]['number'])
         else:
             block_json = send_post_request(self.subgraph_blocks_urls, json={'query': """query {
               blocks(first: 1, orderBy: timestamp, orderDirection: desc, where:{timestamp_lt:%s, timestamp_gt:%s}) {
                   number
                 }
-              }""" % (str(timestamp+10000), str(timestamp))})
+              }""" % (str(timestamp+60), str(timestamp-60))})
             block = block_json['data']['blocks'][0]['number']
         
         dexData_json = send_post_request(self.subgraph_url, json={'query': """query {
