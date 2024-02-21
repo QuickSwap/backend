@@ -284,7 +284,7 @@ class LandingNetwork(AbstractBaseModel):
         return f'{self.title} (id: {self.id})'
 
     def getDexDaysData(self):
-        if self.title == "thena-fusion":
+        if self.title == "Thena BNB" or self.title == "Thena opBNB":
             dexDaysData_json = send_post_request(self.subgraph_url, json={'query': """query {
               fusionDayDatas(first: 365, orderBy: date, orderDirection: desc) {  
                           date
@@ -305,7 +305,7 @@ class LandingNetwork(AbstractBaseModel):
         
     def getDexDataForTimestamp(self, timestamp):
         block = "0"
-        if self.title == "zkevm":
+        if self.title == "QuickSwap zkEVM":
             block_json = send_post_request(self.subgraph_blocks_urls, json={'query': """query {
               ethereumBlocks(first: 1, orderBy: timestamp, orderDirection: desc, where:{timestamp_lt:%s, timestamp_gt:%s}) {
                   number
