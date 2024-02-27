@@ -124,6 +124,39 @@ class BuybackData(APIView):
             result["buybackHistory"] = ""
         return Response(result)
 
+class LandingDayData(APIView):
+    def get(self, request, format=None):
+        result = {}
+
+        for dex in DexDayData.objects.all():
+            data = {}
+            data["now"] = dex.now
+            data["dayAgo"] = dex.day_ago
+            data["twoDaysAgo"] = dex.two_days_ago
+            data["daysData"] = dex.days_data
+            if result.get("now") == None:
+                print(dex.now)
+                result["now"] = {"totalFeesUSD": float(dex.now[0]["totalFeesUSD"]), "totalVolumeUSD": float(dex.now[0]["totalVolumeUSD"]), "totalValueLockedUSD": float(dex.now[0]["totalValueLockedUSD"])}
+            else: 
+                result["now"]["totalValueLockedUSD"] += float(dex.now[0]["totalValueLockedUSD"])
+                result["now"]["totalVolumeUSD"] += float(dex.now[0]["totalVolumeUSD"])
+                result["now"]["totalFeesUSD"] += float(dex.now[0]["totalFeesUSD"])
+            if result.get("dayAgo") == None:
+                print(dex.now)
+                result["dayAgo"] = {"totalFeesUSD": float(dex.day_ago[0]["totalFeesUSD"]), "totalVolumeUSD": float(dex.day_ago[0]["totalVolumeUSD"]), "totalValueLockedUSD": float(dex.day_ago[0]["totalValueLockedUSD"])}
+            else: 
+                result["dayAgo"]["totalValueLockedUSD"] += float(dex.day_ago[0]["totalValueLockedUSD"])
+                result["dayAgo"]["totalVolumeUSD"] += float(dex.day_ago[0]["totalVolumeUSD"])
+                result["dayAgo"]["totalFeesUSD"] += float(dex.day_ago[0]["totalFeesUSD"])
+            if result.get("twoDaysAgo") == None:
+                print(dex.now)
+                result["twoDaysAgo"] = {"totalFeesUSD": float(dex.two_days_ago[0]["totalFeesUSD"]), "totalVolumeUSD": float(dex.two_days_ago[0]["totalVolumeUSD"]), "totalValueLockedUSD": float(dex.two_days_ago[0]["totalValueLockedUSD"])}
+            else: 
+                result["twoDaysAgo"]["totalValueLockedUSD"] += float(dex.two_days_ago[0]["totalValueLockedUSD"])
+                result["twoDaysAgo"]["totalVolumeUSD"] += float(dex.two_days_ago[0]["totalVolumeUSD"])
+                result["twoDaysAgo"]["totalFeesUSD"] += float(dex.two_days_ago[0]["totalFeesUSD"])
+        
+        return Response(result)
 
 class TotalDexData(APIView):
     def get(self, request, format=None):
