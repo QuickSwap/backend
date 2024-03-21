@@ -15,6 +15,8 @@ def update_dex_data(network: LandingNetwork):
     day_ago = network.getDexDataForTimestamp(day_ago_timestamp)
     two_days_ago = network.getDexDataForTimestamp(two_days_ago_timestamp)
 
+    if now == None or day_ago == None or two_days_ago == None: 
+        return
     dex_object = DexDayData.objects.filter(network = network)
     if not dex_object:
         dex_object = DexDayData.objects.create(
@@ -71,7 +73,7 @@ def update_bb_data():
         else:
             processed_data[-1]['value'] += processed_history['value']
 
-    bb_object = BuyBackData.objects.all()
+    bb_object = BuyBackData.objects.first()
     if not bb_object:
         bb_object = BuyBackData.objects.create(
             buy_back_data = processed_data

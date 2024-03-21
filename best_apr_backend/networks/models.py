@@ -284,6 +284,8 @@ class LandingNetwork(AbstractBaseModel):
         return f'{self.title} (id: {self.id})'
 
     def getDexDaysData(self):
+        data = []
+        MAX_VALUE = 5000000000
         if self.title == "Thena BNB" or self.title == "Thena opBNB":
             dexDaysData_json = send_post_request(self.subgraph_url, json={'query': """query {
               fusionDayDatas(first: 365, orderBy: date, orderDirection: desc) {  
@@ -292,7 +294,7 @@ class LandingNetwork(AbstractBaseModel):
                           volumeUSD
                           feesUSD
                       }}"""})
-            return dexDaysData_json['data']['fusionDayDatas']
+            data = dexDaysData_json['data']['fusionDayDatas']
         else:
             dexDaysData_json = send_post_request(self.subgraph_url, json={'query': """query {
               algebraDayDatas(first: 365, orderBy: date, orderDirection: desc) {  
@@ -301,24 +303,22 @@ class LandingNetwork(AbstractBaseModel):
                           volumeUSD
                           feesUSD
                       }}"""})
-            return dexDaysData_json['data']['algebraDayDatas']
+            data = dexDaysData_json['data']['algebraDayDatas']
+        for i in range(len(data)):
+            if float(data[i]["tvlUSD"]) > MAX_VALUE or float(data[i]["volumeUSD"]) > MAX_VALUE:
+                date = data[i]["date"]
+                data[i] = data[i-1]
+                data[i]["date"] = date
+        return data
         
     def getDexDataForTimestamp(self, timestamp):
-        block = "0"
-        if self.title == "QuickSwap zkEVM":
-            block_json = send_post_request(self.subgraph_blocks_urls, json={'query': """query {
-              ethereumBlocks(first: 1, orderBy: timestamp, orderDirection: desc, where:{timestamp_lt:%s, timestamp_gt:%s}) {
-                  number
-                }
-              }""" % (str(timestamp+60), str(timestamp - 60))})
-            block = int(block_json['data']['ethereumBlocks'][0]['number'])
-        else:
-            block_json = send_post_request(self.subgraph_blocks_urls, json={'query': """query {
-              blocks(first: 1, orderBy: timestamp, orderDirection: desc, where:{timestamp_lt:%s, timestamp_gt:%s}) {
-                  number
-                }
-              }""" % (str(timestamp+60), str(timestamp-60))})
-            block = block_json['data']['blocks'][0]['number']
+        MAX_VALUE = 200000000000
+        block_json = send_post_request(self.subgraph_blocks_urls, json={'query': """query {
+          blocks(first: 1, orderBy: timestamp, orderDirection: desc, where:{timestamp_lt:%s, timestamp_gt:%s}) {
+              number
+            }
+          }""" % (str(timestamp+60), str(timestamp-60))})
+        block = block_json['data']['blocks'][0]['number']
         
         dexData_json = send_post_request(self.subgraph_url, json={'query': """query {
             factories(block: {number:%s}) {  
@@ -326,4 +326,8 @@ class LandingNetwork(AbstractBaseModel):
                     totalValueLockedUSD
                     totalFeesUSD
             }}""" % (block)})
-        return dexData_json['data']['factories']
+        data = dexData_json['data']['factories']
+        if float(data[0]['totalVolumeUSD']) > MAX_VALUE or float(data[0]['totalValueLockedUSD']) > MAX_VALUE:
+            return None
+        else:
+            return data
