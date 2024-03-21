@@ -306,9 +306,9 @@ class LandingNetwork(AbstractBaseModel):
             data = dexDaysData_json['data']['algebraDayDatas']
         for i in range(len(data)):
             if float(data[i]["tvlUSD"]) > MAX_VALUE or float(data[i]["volumeUSD"]) > MAX_VALUE:
-                date = data[i]["date"]
-                data[i] = data[i-1]
-                data[i]["date"] = date
+                data[i]["tvlUSD"] = data[i-1]["tvlUSD"]
+                data[i]["volumeUSD"] = data[i-1]["volumeUSD"]
+                data[i]["feesUSD"] = data[i-1]["feesUSD"]
         return data
         
     def getDexDataForTimestamp(self, timestamp):
