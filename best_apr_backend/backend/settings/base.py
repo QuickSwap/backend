@@ -246,8 +246,16 @@ CELERY_BEAT_SCHEDULE = {
         'task': 'best_apr.tasks.update_pools_apr_task',
         'schedule': timedelta(minutes=1),
     },
+    'update_max_pools_apr_task': {
+        'task': 'best_apr.tasks.update_max_pools_apr_task',
+        'schedule': timedelta(minutes=1),
+    },
     'update_eternal_farmings_apr_task': {
         'task': 'best_apr.tasks.update_eternal_farmings_apr_task',
+        'schedule': timedelta(minutes=1),
+    },
+    'update_eternal_farmings_max_apr_task': {
+        'task': 'best_apr.tasks.update_eternal_farmings_max_apr_task',
         'schedule': timedelta(minutes=1),
     },
     'update_limit_farmings_apr_task': {
