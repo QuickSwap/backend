@@ -261,3 +261,73 @@ class Network(AbstractBaseModel):
                 pools_json[i]['feesToken1'] = float(pools_json[i]['feesToken1'])
 
         return pools_json
+ 
+
+class LandingNetwork(AbstractBaseModel):
+    title = CharField(
+        max_length=255,
+        verbose_name='Title',
+    )
+    subgraph_url = URLField(
+        help_text='Subgraph about main contracts'
+    )
+    subgraph_blocks_urls = URLField(
+        help_text='Subgraph about blockchain'
+    )
+
+
+    class Meta:
+        db_table = 'landingNetworks'
+        ordering = '-_created_at',
+
+    def __str__(self) -> str:
+        return f'{self.title} (id: {self.id})'
+
+    def getDexDaysData(self):
+        data = []
+        MAX_VALUE = 5000000000
+        if self.title == "Thena BNB" or self.title == "Thena opBNB":
+            dexDaysData_json = send_post_request(self.subgraph_url, json={'query': """query {
+              fusionDayDatas(first: 365, orderBy: date, orderDirection: desc) {  
+                          date
+                          tvlUSD
+                          volumeUSD
+                          feesUSD
+                      }}"""})
+            data = dexDaysData_json['data']['fusionDayDatas']
+        else:
+            dexDaysData_json = send_post_request(self.subgraph_url, json={'query': """query {
+              algebraDayDatas(first: 365, orderBy: date, orderDirection: desc) {  
+                          date
+                          tvlUSD
+                          volumeUSD
+                          feesUSD
+                      }}"""})
+            data = dexDaysData_json['data']['algebraDayDatas']
+        for i in range(len(data)):
+            if float(data[i]["tvlUSD"]) > MAX_VALUE or float(data[i]["volumeUSD"]) > MAX_VALUE:
+                data[i]["tvlUSD"] = data[i-1]["tvlUSD"]
+                data[i]["volumeUSD"] = data[i-1]["volumeUSD"]
+                data[i]["feesUSD"] = data[i-1]["feesUSD"]
+        return data
+        
+    def getDexDataForTimestamp(self, timestamp):
+        MAX_VALUE = 200000000000
+        block_json = send_post_request(self.subgraph_blocks_urls, json={'query': """query {
+          blocks(first: 1, orderBy: timestamp, orderDirection: desc, where:{timestamp_lt:%s}) {
+              number
+            }
+          }""" % (str(timestamp+60))})
+        block = block_json['data']['blocks'][0]['number']
+        
+        dexData_json = send_post_request(self.subgraph_url, json={'query': """query {
+            factories(block: {number:%s}) {  
+                    totalVolumeUSD
+                    totalValueLockedUSD
+                    totalFeesUSD
+            }}""" % (block)})
+        data = dexData_json['data']['factories']
+        if float(data[0]['totalVolumeUSD']) > MAX_VALUE or float(data[0]['totalValueLockedUSD']) > MAX_VALUE:
+            return None
+        else:
+            return data

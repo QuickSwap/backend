@@ -244,23 +244,31 @@ CELERY_RESULT_SERIALIZER = CELERY_DATA_FORMAT
 CELERY_BEAT_SCHEDULE = {
     'update_pools_apr_task': {
         'task': 'best_apr.tasks.update_pools_apr_task',
-        'schedule': timedelta(minutes=1),
+        'schedule': timedelta(minutes=5),
     },
     'update_max_pools_apr_task': {
         'task': 'best_apr.tasks.update_max_pools_apr_task',
-        'schedule': timedelta(minutes=1),
+        'schedule': timedelta(minutes=5),
     },
     'update_eternal_farmings_apr_task': {
         'task': 'best_apr.tasks.update_eternal_farmings_apr_task',
-        'schedule': timedelta(minutes=1),
+        'schedule': timedelta(minutes=5),
     },
     'update_eternal_farmings_max_apr_task': {
         'task': 'best_apr.tasks.update_eternal_farmings_max_apr_task',
-        'schedule': timedelta(minutes=1),
+        'schedule': timedelta(minutes=5),
     },
     'update_limit_farmings_apr_task': {
         'task': 'best_apr.tasks.update_limit_farmings_apr_task',
-        'schedule': timedelta(minutes=1),
+        'schedule': timedelta(minutes=5),
+    },
+    'update_dex_data_task': {
+        'task': 'best_apr.tasks.update_dex_data_task',
+        'schedule': timedelta(minutes=10),
+    },
+    'update_bb_data_task': {
+        'task': 'best_apr.tasks.update_bb_data_task',
+        'schedule': timedelta(minutes=30),
     },
 }
 

@@ -1,7 +1,7 @@
 from django.contrib.admin import ModelAdmin, register, display
 
 # Register your models here.
-from .models import Pool, EternalFarming, LimitFarming
+from .models import Pool, EternalFarming, LimitFarming, DexDayData
 
 
 @register(Pool)
@@ -90,6 +90,28 @@ class LimitFarmingAdmin(ModelAdmin):
     )
     sortable_by = (
         'last_apr',
+        'network'
+    )
+    empty_value_display = '-empty-'
+
+@register(DexDayData)
+class DexDayDataAdmin(ModelAdmin):
+    fields = (
+        'network',
+        'days_data',
+        
+    )
+    list_display = (
+        'days_data',
+        'network'
+    )
+    list_filter = (
+        'network__title',
+    )
+    ordering = (
+        'network__title',
+    )
+    sortable_by = (
         'network'
     )
     empty_value_display = '-empty-'
