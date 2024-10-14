@@ -36,6 +36,7 @@ def update_bb_data():
 
     ALGB_BUYBACK_TIMESTAMP = 1706612656 
     algb_rewards_api = 'https://api.studio.thegraph.com/query/50593/rewards/v0.0.1'
+
     def is_same_day(first_timestamp, second_timestamp):
         d1 = datetime.fromtimestamp(first_timestamp)
         d2 = datetime.fromtimestamp(second_timestamp)
