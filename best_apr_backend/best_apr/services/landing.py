@@ -44,7 +44,7 @@ def update_bb_data():
     response = send_post_request(algb_rewards_api, json={
         'query': '''
             query algbRewards {
-                histories(first: 100, orderBy: id, orderDirection: asc) {    
+                histories(first: 1000, orderBy: id, orderDirection: asc) {    
                     id
                     rewardsAdded
                     burned

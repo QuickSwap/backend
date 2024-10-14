@@ -314,10 +314,10 @@ class LandingNetwork(AbstractBaseModel):
     def getDexDataForTimestamp(self, timestamp):
         MAX_VALUE = 200000000000
         block_json = send_post_request(self.subgraph_blocks_urls, json={'query': """query {
-          blocks(first: 1, orderBy: timestamp, orderDirection: desc, where:{timestamp_lt:%s, timestamp_gt:%s}) {
+          blocks(first: 1, orderBy: timestamp, orderDirection: desc, where:{timestamp_lt:%s}) {
               number
             }
-          }""" % (str(timestamp+60), str(timestamp-60))})
+          }""" % (str(timestamp+60))})
         block = block_json['data']['blocks'][0]['number']
         
         dexData_json = send_post_request(self.subgraph_url, json={'query': """query {
