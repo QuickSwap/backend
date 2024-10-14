@@ -5,7 +5,7 @@ from networks.models import Network, LandingNetwork
 
 
 class Pool(AbstractBaseModel):
-    title = models.CharField(max_length=64)
+    title = models.CharField(max_length=256)
     address = models.CharField(max_length=42)
     last_apr = models.FloatField(blank=True, null=True)
     max_apr = models.FloatField(blank=True, null=True)
