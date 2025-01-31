@@ -26,8 +26,8 @@ def send_get_request(url, params=None):
     return response.json()
 
 
-def send_post_request(url, params=None, json=None):
-    response = post_request(url, params=params, json=json)
+def send_post_request(url, params=None, json=None, headers=None):
+    response = post_request(url, params=params, json=json, headers=headers)
 
     if response.status_code != HTTP_200_OK:
         error_message = REQUEST_ERROR.format(

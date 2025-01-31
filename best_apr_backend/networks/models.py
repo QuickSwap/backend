@@ -27,6 +27,12 @@ class Network(AbstractBaseModel):
         help_text='Subgraph about farmings'
     )
 
+    api_key = CharField(
+        max_length=255,
+        verbose_name='Sentio api key',
+        null=True
+    )
+
     class Meta:
         db_table = 'networks'
         ordering = '-_created_at',
@@ -35,16 +41,22 @@ class Network(AbstractBaseModel):
         return f'{self.title} (id: {self.id})'
 
     def get_token_info_by_address(self, address):
+        headers = None
+        if self.api_key != None:  
+          headers={"api-key": self.api_key}
         ids_json = send_post_request(self.subgraph_url, json={'query': """query {
           tokens(where:{id:"%s"}){
             derivedMatic
             decimals
           }
-        }""" % address})
+        }""" % address}, headers=headers)
 
         return ids_json['data']['tokens']
 
     def get_eternal_farmings_info(self, ):
+        headers = None
+        if self.api_key != None:  
+          headers={"api-key": self.api_key}
         ids_json = send_post_request(self.subgraph_farming_url, json={'query': """query {
           eternalFarmings{
             id
@@ -53,11 +65,14 @@ class Network(AbstractBaseModel):
             rewardRate
             bonusRewardRate
           }
-        }"""})
+        }"""}, headers=headers)
 
         return ids_json['data']['eternalFarmings']
 
     def get_limit_farmings_info(self, ):
+        headers = None
+        if self.api_key != None:  
+          headers={"api-key": self.api_key}
         ids_json = send_post_request(self.subgraph_farming_url, json={'query': """query {
           limitFarmings{
             id
@@ -68,7 +83,7 @@ class Network(AbstractBaseModel):
             startTime
             endTime
           }
-        }"""})
+        }"""}, headers=headers)
 
         return ids_json['data']['limitFarmings']
 
@@ -76,12 +91,16 @@ class Network(AbstractBaseModel):
         result = []
         i = 0
 
+        headers = None
+        if self.api_key != None:  
+          headers={"api-key": self.api_key}
+
         while True:
             ids_json = send_post_request(self.subgraph_farming_url, json={'query': """query {
               deposits(where:{eternalFarming:"%s"}, first:1000, skip:%s){
                 id
               }
-            }""" % (farming_id, str(i*1000))})
+            }""" % (farming_id, str(i*1000))}, headers=headers)
 
             result += ids_json['data']['deposits']
 
@@ -94,12 +113,17 @@ class Network(AbstractBaseModel):
         result = []
         i = 0
 
+        headers = None
+        if self.api_key != None:  
+          headers={"api-key": self.api_key}
+
+
         while True:
             ids_json = send_post_request(self.subgraph_farming_url, json={'query': """query {
               deposits(where:{limitFarming:"%s"}, first:1000, skip:%s){
                 id
               }
-            }""" % (farming_id, str(i*1000))})
+            }""" % (farming_id, str(i*1000))}, headers=headers)
 
             result += ids_json['data']['deposits']
 
@@ -111,6 +135,9 @@ class Network(AbstractBaseModel):
     def get_positions_by_id(self, ids):
         ids_array = [i['id'] for i in ids]
 
+        headers = None
+        if self.api_key != None:  
+          headers={"api-key": self.api_key}
         result = []
         i = 0
 
@@ -139,7 +166,7 @@ class Network(AbstractBaseModel):
                   tick
                 }
               }
-            }""" % (str(ids_array).replace("'", '"'), str(i*1000))})
+            }""" % (str(ids_array).replace("'", '"'), str(i*1000))}, headers=headers)
 
             result += positions_json['data']['positions']
 
@@ -170,6 +197,9 @@ class Network(AbstractBaseModel):
     def get_positions_of_pool(self, pool):
         result = []
         i = 0
+        headers = None
+        if self.api_key != None:  
+          headers={"api-key": self.api_key}
 
         while True:
             positions_json = send_post_request(self.subgraph_url, json={'query': """query {
@@ -186,7 +216,7 @@ class Network(AbstractBaseModel):
                   token0Price
                 }
               }
-            }""" % (str(i*1000), pool)})
+            }""" % (str(i*1000), pool)},  headers=headers)
 
             result += positions_json['data']['poolPositions']
 
@@ -196,15 +226,21 @@ class Network(AbstractBaseModel):
         return result
 
     def get_previous_block_number(self):
+        headers = None
+        if self.api_key != None:  
+          headers={"api-key": self.api_key}
         previous_date = int(time()) - settings.APR_DELTA
         block_json = send_post_request(self.subgraph_blocks_urls, json={'query': """query {
             blocks(first: 1, orderBy: timestamp, orderDirection: desc, where:{timestamp_lt:%s, timestamp_gt:%s}) {
                 number
               }
-        }""" % (str(previous_date), str(previous_date - settings.BLOCK_DELTA))})
+        }""" % (str(previous_date), str(previous_date - settings.BLOCK_DELTA))},  headers=headers)
         return block_json['data']['blocks'][0]['number']
 
     def get_current_pools_info(self):
+        headers = None
+        if self.api_key != None:  
+          headers={"api-key": self.api_key}
         pools_json_previous_raw = send_post_request(self.subgraph_url, json={'query': """query {
         pools(block:{number:%s},first: 1000, orderBy: id){
             feesToken0
@@ -222,7 +258,7 @@ class Network(AbstractBaseModel):
             token0Price
             tick
          }
-            }""" % self.get_previous_block_number()})
+            }""" % self.get_previous_block_number()}, headers=headers)
 
         pools_json_previous = {}
 
@@ -246,7 +282,7 @@ class Network(AbstractBaseModel):
             token0Price
             tick
          }
-            }"""})
+            }"""},  headers=headers)
 
         pools_json = pools_json['data']['pools']
 
