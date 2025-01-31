@@ -30,7 +30,8 @@ class Network(AbstractBaseModel):
     api_key = CharField(
         max_length=255,
         verbose_name='Sentio api key',
-        null=True
+        null=True,
+        blank=True
     )
 
     class Meta:
