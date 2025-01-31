@@ -12,6 +12,7 @@ class NetworkModelAdmin(ModelAdmin):
         'subgraph_url',
         'subgraph_blocks_urls',
         'subgraph_farming_url',
+        'api_key',
         '_is_displayed',
     )
     list_display = (
