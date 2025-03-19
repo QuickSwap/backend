@@ -4,7 +4,9 @@ from datetime import datetime
 from networks.models import Network
 from best_apr.models import Pool, EternalFarming, LimitFarming
 from backend.consts import DEFAULT_CRYPTO_ADDRESS
+import logging
 
+logging.basicConfig(level=logging.DEBUG)
 
 def tick_to_sqrt_price(tick):
     return sqrt(pow(1.0001, tick))
@@ -36,6 +38,7 @@ def update_pools_apr(network: Network):
     for pool in pools_json:
         pools_tick[pool['id']] = int(pool['tick'])
         pools_current_tvl[pool['id']] = 0
+        logging.debug("pool01=%s", pool)
         try:
             pools_fees[pool['id']] += pool['feesToken0']
         except KeyError:
@@ -43,22 +46,23 @@ def update_pools_apr(network: Network):
         pools_fees[pool['id']] += pool['feesToken1'] * float(pool['token0Price'])
 
         positions_json = network.get_positions_of_pool(pool['id'])
-
+        logging.debug("position00=%s", positions_json)
         for position in positions_json:
+            logging.debug("position01=%s", position)
             current_tick = pools_tick[position['pool']['id']]
             if int(position['lowerTick']['tickIdx']) < current_tick < int(position['upperTick']['tickIdx']):
+                logging.debug("position02=%s", position)
                 (amount0, amount1) = get_amounts(
                     int(position['liquidity']),
                     int(position['lowerTick']['tickIdx']),
                     int(position['upperTick']['tickIdx']),
                     current_tick,
                 )
+                logging.debug("amount0=%s amount1=%s", amount0, amount1)
                 amount0 = amount0 / pow(10, int(pool['token0']['decimals']))
                 amount1 = (amount1 / pow(10, int(pool['token1']['decimals'])))
                 pools_current_tvl[position['pool']['id']] += amount0
                 pools_current_tvl[position['pool']['id']] += amount1 * float(position['pool']['token0Price'])
-
-    for pool in pools_json:
         pool_object = Pool.objects.filter(address=pool['id'])
         if not pool_object:
             pool_object = Pool.objects.create(
@@ -68,13 +72,14 @@ def update_pools_apr(network: Network):
             )
         else:
             pool_object = pool_object[0]
+        logging.debug("position03=%s", pools_current_tvl[pool['id']])
         if pools_current_tvl[pool['id']]:
             pool_object.last_apr = \
                 (pools_fees[pool_object.address] * 365 / pools_current_tvl[pool['id']]) * 100
         else:
             pool_object.last_apr = 0.0
         pool_object.save()
-
+    
 def update_max_pools_apr(network: Network):
     pools_json = network.get_current_pools_info()
 

@@ -9,7 +9,9 @@ from django.db.models import (
 
 from base.models import AbstractBaseModel
 from base.requests import send_post_request
+import logging
 
+logging.basicConfig(level=logging.DEBUG)
 
 # Create your models here.
 class Network(AbstractBaseModel):
@@ -218,10 +220,19 @@ class Network(AbstractBaseModel):
                 }
               }
             }""" % (str(i*1000), pool)},  headers=headers)
-
-            result += positions_json['data']['poolPositions']
-
-            if len(positions_json['data']['poolPositions']) < 1000:
+            ##logging.debug("model01=%s", positions_json)
+            data = positions_json['data']
+            ##logging.debug("model02=%s", data)
+            if data is not None:
+              pool_positions = data['poolPositions']
+              ##logging.debug("model03=%s", pool_positions)
+              result += pool_positions
+              logging.debug("pool positions lenght=%s", len(pool_positions))
+              if len(pool_positions) < 1000:
+                  logging.debug("result=%s", result)
+                  break
+            else:
+                logging.debug("result=%s", result)
                 break
 
         return result
@@ -243,7 +254,9 @@ class Network(AbstractBaseModel):
         if self.api_key != None:  
           headers={"api-key": self.api_key}
         pools_json_previous_raw = send_post_request(self.subgraph_url, json={'query': """query {
-        pools(block:{number:%s},first: 1000, orderBy: id){
+        pools(block:{number:%s},first: 1000, orderBy: totalValueLockedUSD orderDirection: desc where:{
+    totalValueLockedUSD_gt: 10000
+  }){
             feesToken0
             feesToken1
             liquidity
@@ -270,6 +283,8 @@ class Network(AbstractBaseModel):
         pools(first: 1000, orderBy: id){
             feesToken0
             feesToken1
+            feesUSD
+            totalValueLockedUSD                                                    
             liquidity
             id
             token0{

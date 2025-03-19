@@ -105,7 +105,7 @@ services:
     - worker
     - --loglevel=DEBUG
     - -E
-#    - --logfile=celery.log
+    - --logfile=celery.log
 
   dev-celery-beat:
     container_name: ${CELERY_BEAT_SERVICE_NAME}
