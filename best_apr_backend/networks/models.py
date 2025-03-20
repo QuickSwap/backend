@@ -227,7 +227,7 @@ class Network(AbstractBaseModel):
               pool_positions = data['poolPositions']
               ##logging.debug("model03=%s", pool_positions)
               result += pool_positions
-              ##logging.debug("pool positions lenght=%s", len(pool_positions))
+              logging.debug("pool positions lenght=%s", len(pool_positions))
               if len(pool_positions) < 1000:
                   ##logging.debug("result=%s", result)
                   break
@@ -284,6 +284,39 @@ class Network(AbstractBaseModel):
                 break
 
         return result
+
+    def get_pool_day_data(self, pool, days=7):
+        result = []
+        i = 0
+        headers = None
+        if self.api_key != None:  
+          headers={"api-key": self.api_key}
+        json = {'query': """query {
+            poolDayDatas(
+            where: {
+              pool: "%s"
+            }
+            first: 7
+            orderBy: date
+            orderDirection: asc
+          ) {
+            date
+            volumeUSD
+            feesUSD
+            tvlUSD
+          }
+        }""" % (pool)}
+        positions_json = send_post_request(self.subgraph_url, json=json,  headers=headers)
+            ##logging.debug("model01=%s", positions_json)
+        data = positions_json['data']
+        if data is not None:
+          pool_positions = data['poolDayDatas']
+              ##logging.debug("model03=%s", pool_positions)
+          result += pool_positions
+            ##logging.debug("pool positions lenght=%s", len(pool_positions))
+              
+        return result
+
 
     def get_previous_block_number(self):
         headers = None
