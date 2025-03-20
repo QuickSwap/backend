@@ -30,7 +30,12 @@ def get_amounts(liquidity, tickLower, tickUpper, currentTick):
 
 def update_pools_apr(network: Network):
     pools_json = network.get_current_pools_info()
-
+    logging.debug("network=%s", network.title)
+    logging.debug("pools_length=%s pools=%s", len(pools_json), pools_json)
+    network_type = 'v3'
+    if network.title == 'soneium':
+        network_type = 'v4'
+        logging.debug("SONEIUM")
     pools_tick = {}
     pools_current_tvl = {}
     pools_fees = {}
@@ -44,18 +49,29 @@ def update_pools_apr(network: Network):
         except KeyError:
             pools_fees[pool['id']] = pool['feesToken0']
         pools_fees[pool['id']] += pool['feesToken1'] * float(pool['token0Price'])
-
-        positions_json = network.get_positions_of_pool(pool['id'])
-        logging.debug("position00=%s", positions_json)
+        positions_json = []
+        if network_type == 'v4':
+            positions_json = network.get_positions_of_integral_pool(pool['id'])
+        else:
+            positions_json = network.get_positions_of_pool(pool['id'])
+        ##logging.debug("position00=%s", positions_json)
         for position in positions_json:
-            logging.debug("position01=%s", position)
+            ##logging.debug("position01=%s", position)
             current_tick = pools_tick[position['pool']['id']]
-            if int(position['lowerTick']['tickIdx']) < current_tick < int(position['upperTick']['tickIdx']):
-                logging.debug("position02=%s", position)
+            lower_tickIdx = 0
+            upper_tickIdx = 0
+            if network_type == 'v4':
+                lower_tickIdx = position['lowerTick']['tickIdx']
+                upper_tickIdx = position['upperTick']['tickIdx']
+            else:
+                lower_tickIdx = position['tickLower']['tickIdx']
+                upper_tickIdx = position['tickUpper']['tickIdx']
+            if int(lower_tickIdx) < current_tick < int(upper_tickIdx):
+                ##logging.debug("position02=%s", position)
                 (amount0, amount1) = get_amounts(
                     int(position['liquidity']),
-                    int(position['lowerTick']['tickIdx']),
-                    int(position['upperTick']['tickIdx']),
+                    int(lower_tickIdx),
+                    int(upper_tickIdx),
                     current_tick,
                 )
                 logging.debug("amount0=%s amount1=%s", amount0, amount1)
@@ -72,7 +88,8 @@ def update_pools_apr(network: Network):
             )
         else:
             pool_object = pool_object[0]
-        logging.debug("position03=%s", pools_current_tvl[pool['id']])
+        ##logging.debug("position03=%s", pools_current_tvl[pool['id']])
+        logging.debug("pools fees=%s pools tvl=%s", pools_fees[pool_object.address], pools_current_tvl[pool['id']])
         if pools_current_tvl[pool['id']]:
             pool_object.last_apr = \
                 (pools_fees[pool_object.address] * 365 / pools_current_tvl[pool['id']]) * 100

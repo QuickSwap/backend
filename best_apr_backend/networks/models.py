@@ -197,7 +197,7 @@ class Network(AbstractBaseModel):
     # }"""})
     #     return positions_json['data']['positionSnapshots']
 
-    def get_positions_of_pool(self, pool):
+    def get_positions_of_integral_pool(self, pool):
         result = []
         i = 0
         headers = None
@@ -225,6 +225,54 @@ class Network(AbstractBaseModel):
             ##logging.debug("model02=%s", data)
             if data is not None:
               pool_positions = data['poolPositions']
+              ##logging.debug("model03=%s", pool_positions)
+              result += pool_positions
+              ##logging.debug("pool positions lenght=%s", len(pool_positions))
+              if len(pool_positions) < 1000:
+                  ##logging.debug("result=%s", result)
+                  break
+            else:
+                ##logging.debug("result=%s", result)
+                break
+
+        return result
+
+    def get_positions_of_pool(self, pool):
+        result = []
+        i = 0
+        headers = None
+        if self.api_key != None:  
+          headers={"api-key": self.api_key}
+
+        while True:
+            positions_json = send_post_request(self.subgraph_url, json={'query': """query {
+                positions(first:1000, skip:%s, where:{liquidity_gt:0, pool:"%s"}){
+                tickLower{
+                    tickIdx
+                }
+                tickUpper{
+                    tickIdx
+                }
+                liquidity
+                depositedToken0
+                depositedToken1
+                token0{
+                  decimals
+                }
+                token1{
+                  decimals
+                }
+                pool{
+                  id
+                  token0Price
+                }
+              }
+            }""" % (str(i*1000), pool)},  headers=headers)
+            ##logging.debug("model01=%s", positions_json)
+            data = positions_json['data']
+            ##logging.debug("model02=%s", data)
+            if data is not None:
+              pool_positions = data['positions']
               ##logging.debug("model03=%s", pool_positions)
               result += pool_positions
               logging.debug("pool positions lenght=%s", len(pool_positions))
@@ -255,7 +303,7 @@ class Network(AbstractBaseModel):
           headers={"api-key": self.api_key}
         pools_json_previous_raw = send_post_request(self.subgraph_url, json={'query': """query {
         pools(block:{number:%s},first: 1000, orderBy: totalValueLockedUSD orderDirection: desc where:{
-    totalValueLockedUSD_gt: 10000
+        totalValueLockedUSD_gt: "10000" feesUSD_gt: "100"
   }){
             feesToken0
             feesToken1
@@ -280,7 +328,9 @@ class Network(AbstractBaseModel):
             pools_json_previous[pool['id']] = {'feesToken0': pool['feesToken0'], 'feesToken1': pool['feesToken1'], 'liquidity': pool['liquidity']}
 
         pools_json = send_post_request(self.subgraph_url, json={'query': """query {
-        pools(first: 1000, orderBy: id){
+        pools(first: 1000, orderBy: totalValueLockedUSD orderDirection: desc where:{
+        totalValueLockedUSD_gt: "10000" feesUSD_gt: "100"
+  }){
             feesToken0
             feesToken1
             feesUSD
