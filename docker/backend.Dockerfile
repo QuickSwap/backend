@@ -10,7 +10,7 @@ RUN apt-get update && apt-get upgrade -y && apt-get install -y vim nano
 WORKDIR $WORK_DIR
 
 # Upgrade pip and install poetry
-RUN python -m pip install --upgrade pip && pip install poetry
+RUN python -m pip install --upgrade pip && pip install poetry==1.8.5
 
 # Copy poetry files
 COPY $SOURCE_DIR/poetry.lock $SOURCE_DIR/pyproject.toml $WORK_DIR/
