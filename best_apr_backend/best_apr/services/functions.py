@@ -31,7 +31,7 @@ def get_amounts(liquidity, tickLower, tickUpper, currentTick):
 def update_pools_apr(network: Network):
     pools_json = network.get_current_pools_info()
     logging.debug("network=%s", network.title)
-    logging.debug("pools_length=%s pools=%s", len(pools_json), pools_json)
+    ##logging.debug("pools_length=%s pools=%s", len(pools_json), pools_json)
     network_type = 'v3'
     if network.title == 'soneium':
         network_type = 'v4'
@@ -43,7 +43,7 @@ def update_pools_apr(network: Network):
     for pool in pools_json:
         pools_tick[pool['id']] = int(pool['tick'])
         pools_current_tvl[pool['id']] = 0
-        logging.debug("pool01=%s", pool)
+        ##logging.debug("pool01=%s", pool)
         try:
             pools_fees[pool['id']] += pool['feesToken0']
         except KeyError:
@@ -74,7 +74,7 @@ def update_pools_apr(network: Network):
                     int(upper_tickIdx),
                     current_tick,
                 )
-                logging.debug("amount0=%s amount1=%s", amount0, amount1)
+                ##logging.debug("amount0=%s amount1=%s", amount0, amount1)
                 amount0 = amount0 / pow(10, int(pool['token0']['decimals']))
                 amount1 = (amount1 / pow(10, int(pool['token1']['decimals'])))
                 pools_current_tvl[position['pool']['id']] += amount0
@@ -89,7 +89,7 @@ def update_pools_apr(network: Network):
         else:
             pool_object = pool_object[0]
         ##logging.debug("position03=%s", pools_current_tvl[pool['id']])
-        logging.debug("pools fees=%s pools tvl=%s", pools_fees[pool_object.address], pools_current_tvl[pool['id']])
+        ##logging.debug("pools fees=%s pools tvl=%s", pools_fees[pool_object.address], pools_current_tvl[pool['id']])
         if pools_current_tvl[pool['id']]:
             pool_object.last_apr = \
                 (pools_fees[pool_object.address] * 365 / pools_current_tvl[pool['id']]) * 100

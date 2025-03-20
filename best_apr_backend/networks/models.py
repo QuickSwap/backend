@@ -275,12 +275,12 @@ class Network(AbstractBaseModel):
               pool_positions = data['positions']
               ##logging.debug("model03=%s", pool_positions)
               result += pool_positions
-              logging.debug("pool positions lenght=%s", len(pool_positions))
+              ##logging.debug("pool positions lenght=%s", len(pool_positions))
               if len(pool_positions) < 1000:
-                  logging.debug("result=%s", result)
+                  ##logging.debug("result=%s", result)
                   break
             else:
-                logging.debug("result=%s", result)
+                ##logging.debug("result=%s", result)
                 break
 
         return result
