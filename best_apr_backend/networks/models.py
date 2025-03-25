@@ -362,7 +362,7 @@ class Network(AbstractBaseModel):
 
         pools_json = send_post_request(self.subgraph_url, json={'query': """query {
         pools(first: 1000, orderBy: totalValueLockedUSD orderDirection: desc where:{
-        totalValueLockedUSD_gt: "10000" feesUSD_gt: "100"
+        totalValueLockedUSD_gt: "10000" feesUSD_gt: "1"
   }){
             feesToken0
             feesToken1
